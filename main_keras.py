@@ -62,13 +62,25 @@ class DQN:
 
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
+
+        # sampling random transitions from the whole batch
         for state, action, reward, next_state, done in minibatch:
+            #if terminal yj is rj
             target = reward
+
+            #if not-terminal
+            # yj is rj + gamma * maxaction(q(nextstate,nextaction)
             if not done:
               target = reward + self.gamma * \
                        np.amax(self.model.predict(next_state)[0])
+
+            #performing gradient descent
+            #calculate current q-value for current state
             target_f = self.model.predict(state)
+
+            #update q-value for current action with new targets
             target_f[0][action] = target
+
             self.model.fit(state, target_f, epochs=1, verbose=0)
 
 
@@ -77,7 +89,7 @@ if __name__ == "__main__":
     # initialize gym environment and the agent
     env = gym.make('CartPole-v0')
     agent = DQN(env.observation_space.shape,2)
-    episodes = 20000
+    episodes = 100
     batch_size=32
     scores=[]
 
@@ -85,13 +97,13 @@ if __name__ == "__main__":
     for e in range(episodes):
 
         # reset state in the beginning of each game
-        state = env.reset()
+        state = env.reset(seed=33)
         #print(state.shape)
         state = np.reshape(state, [1, 4])
         #print(state.shape)
 
 
-        max_score = 300
+        max_score = 200
         for time_t in range(max_score):
             #env.render()
 
@@ -119,7 +131,7 @@ if __name__ == "__main__":
 
     env.close()
     plt.plot(scores)
-    plt.title('Training...')
+    plt.title('Training: batch size of 32')
     plt.xlabel('Episode')
     plt.ylabel('Duration')
     plt.show()
