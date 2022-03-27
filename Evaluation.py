@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 class LearningCurvePlot:
 
-    def __init__(self, title="Experiment"):
+    def __init__(self, title=None):
         self.fig, self.ax = plt.subplots()
         self.ax.set_xlabel('Episode')
         self.ax.set_ylabel('Duration')
@@ -52,7 +52,7 @@ def experiment():
     Plot.save("network_learning.png")
 
 def experiment_lr():
-    n_episodes = 150
+    n_episodes = 200
     learning_rates = [0.01, 0.2, 0.5]
     Plot = LearningCurvePlot()
     for lr in learning_rates:
@@ -60,20 +60,20 @@ def experiment_lr():
         Plot.add_curve(learning_curve,label=r'Learning rate = {}'.format(lr))
     Plot.save("learning_rates.png")
 def experiment_eb():
-    n_episodes = 200
+    n_episodes = 150
     smoothing_window = 31
     Plot = LearningCurvePlot()
     now = time.time()
-    without = average_over_repetitions(30,n_episodes,smoothing_window,with_mb=False,with_tn=False)
+    without = average_over_repetitions(1,n_episodes,smoothing_window,with_mb=False,with_tn=False)
     print('Without Experience Buffer and Target Network: {} minutes'.format((time.time() - now) / 60))
     now = time.time()
-    with_eb_learning_curve = average_over_repetitions(30,n_episodes,smoothing_window,with_mb=True,with_tn=False)
+    with_eb_learning_curve = average_over_repetitions(1,n_episodes,smoothing_window,with_mb=True,with_tn=False)
     print('With Experience Buffer: {} minutes'.format((time.time() - now) / 60))
     now = time.time()
-    with_tn_learning_curve = average_over_repetitions(30,n_episodes,smoothing_window,with_mb=False,with_tn=True)
+    with_tn_learning_curve = average_over_repetitions(1,n_episodes,smoothing_window,with_mb=False,with_tn=True)
     print('With Target Network: {} minutes'.format((time.time() - now) / 60))
     now = time.time()
-    with_tn__eb_learning_curve = average_over_repetitions(30,n_episodes,smoothing_window, with_mb=True, with_tn=True)
+    with_tn__eb_learning_curve = average_over_repetitions(1,n_episodes,smoothing_window, with_mb=True, with_tn=True)
     print('With Target Network and Experience Buffer: {} minutes'.format((time.time() - now) / 60))
 
     Plot.add_curve(without,label=r'Deep Q learning without Replay Buffer and Target Network')
@@ -107,6 +107,6 @@ def experiment_expl():
 
 #experiment()
 #experiment_lr()
-#experiment_eb()
-experiment_expl()
+experiment_eb()
+#experiment_expl()
 #experiment_archtecture()

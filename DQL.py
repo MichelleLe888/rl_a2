@@ -137,7 +137,7 @@ def deep_q_learning(n_episodes,max_episode_lenght,memory_buffer_size,learning_ra
 
             state = next_state
 
-            if done:
+            if done or i == (max_episode_lenght-1):
                 rewards.append(i+1)
                 episodes_left-=1
                 break
