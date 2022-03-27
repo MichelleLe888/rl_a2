@@ -8,10 +8,10 @@ from matplotlib import pyplot as plt
 from collections import deque
 import sys
 
-def DqnModel(input_shape, action_space,learning_rate):
+def DqnModel(input_shape, action_space,learning_rate,number_of_nodes = [24,16]):
     input_layer = Input(input_shape)
-    layer = Dense(24, input_shape=input_shape, activation="relu")(input_layer)
-    layer = Dense(16, activation="relu")(layer)
+    layer = Dense(number_of_nodes[0], input_shape=input_shape, activation="relu")(input_layer)
+    layer = Dense(number_of_nodes[1], activation="relu")(layer)
     #layer = Dense(64, activation="relu")(layer)
     layer = Dense(action_space, activation="linear")(layer)
     model = Model(inputs=input_layer, outputs=layer)
@@ -20,7 +20,7 @@ def DqnModel(input_shape, action_space,learning_rate):
 
 
 class DQNAgent:
-    def __init__(self,n_states, n_actions, memory_buffer_size,learning_rate,epsilon,gamma,batch_size, with_memory = True, with_tn = True):
+    def __init__(self,n_states, n_actions, memory_buffer_size,learning_rate,epsilon,gamma,batch_size, with_memory = True, with_tn = True, number_of_nodes = [24,16]):
         self.state_size = n_states
         self.action_size = n_actions
 
@@ -31,13 +31,13 @@ class DQNAgent:
         self.batch_size = batch_size
         self.target_updates_treshold = 10
 
-        self.model = DqnModel(input_shape=(self.state_size,), action_space=self.action_size,learning_rate=self.learning_rate)
+        self.model = DqnModel(input_shape=(self.state_size,), action_space=self.action_size,learning_rate=self.learning_rate,number_of_nodes=number_of_nodes)
 
         if with_memory:
             self.memory = deque(maxlen=memory_buffer_size)
 
         if with_tn:
-            self.target_network = DqnModel(input_shape=(self.state_size,), action_space=self.action_size, learning_rate=self.learning_rate)
+            self.target_network = DqnModel(input_shape=(self.state_size,), action_space=self.action_size, learning_rate=self.learning_rate,number_of_nodes=number_of_nodes)
             self.target_network.set_weights(self.model.get_weights())
 
 
@@ -106,10 +106,10 @@ class DQNAgent:
 
 
 
-def deep_q_learning(n_episodes,max_episode_lenght,memory_buffer_size,learning_rate,gamma,epsilon,batch_size,with_mb = True, with_tn = True):
+def deep_q_learning(n_episodes,max_episode_lenght,memory_buffer_size,learning_rate,gamma,epsilon,batch_size,with_mb = True, with_tn = True, number_of_nodes = None):
     env = gym.make('CartPole-v1')
     env.reset()
-    DQL_Agent = DQNAgent(env.observation_space.shape[0], env.action_space.n,memory_buffer_size, learning_rate,epsilon, gamma,batch_size,with_memory=with_mb,with_tn=with_tn)
+    DQL_Agent = DQNAgent(env.observation_space.shape[0], env.action_space.n,memory_buffer_size, learning_rate,epsilon, gamma,batch_size,with_memory=with_mb,with_tn=with_tn, number_of_nodes=number_of_nodes)
     rewards = []
     episodes_left = n_episodes
     for episode in range(n_episodes):
@@ -121,15 +121,11 @@ def deep_q_learning(n_episodes,max_episode_lenght,memory_buffer_size,learning_ra
             action = DQL_Agent.select_action(state)
             next_state, reward, done, _ = env.step(action)
 
-            if done:
-                rewards.append(i+1)
-                episodes_left-=1
-                break
+
 
             if with_mb:
                 DQL_Agent.update_buffer(state, action, reward, next_state, done)
 
-            state = next_state
             transition = (state, action, reward, next_state, done)
 
             if with_mb:
@@ -137,6 +133,14 @@ def deep_q_learning(n_episodes,max_episode_lenght,memory_buffer_size,learning_ra
                     DQL_Agent.train(done,transition,with_tn=with_tn, with_mb=with_mb)
             else:
                 DQL_Agent.train(done, transition, with_tn=with_tn, with_mb=with_mb)
+
+
+            state = next_state
+
+            if done:
+                rewards.append(i+1)
+                episodes_left-=1
+                break
 
     env.close()
     return rewards
