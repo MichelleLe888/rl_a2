@@ -9,6 +9,8 @@ from collections import deque
 import sys
 
 def DqnModel(input_shape, action_space,learning_rate,number_of_nodes = [24,16]):
+    if number_of_nodes is None:
+        number_of_nodes = [24,16]
     input_layer = Input(input_shape)
     layer = Dense(number_of_nodes[0], input_shape=input_shape, activation="relu")(input_layer)
     layer = Dense(number_of_nodes[1], activation="relu")(layer)
