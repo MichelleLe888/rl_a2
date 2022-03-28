@@ -45,35 +45,39 @@ def average_over_repetitions(n_repetitions,n_episodes,smoothing_widnow,with_mb=T
     return learning_curve
 
 def experiment():
+    repitition = 10000
     n_episodes = 200
     Plot = LearningCurvePlot()
-    learning_curve = average_over_repetitions(30, n_episodes,31,with_mb=True,with_tn=True,learning_rate=0.1)
+    learning_curve = average_over_repetitions(repitition, n_episodes,31,with_mb=True,with_tn=True,learning_rate=0.1)
     Plot.add_curve(learning_curve)
     Plot.save("network_learning.png")
 
 def experiment_lr():
+    repitition = 10000
     n_episodes = 200
     learning_rates = [0.01, 0.2, 0.5]
     Plot = LearningCurvePlot()
     for lr in learning_rates:
-        learning_curve = average_over_repetitions(30, n_episodes,smoothing_widnow=31,with_mb=True,with_tn=True,learning_rate=lr)
+        learning_curve = average_over_repetitions(repitition, n_episodes,smoothing_widnow=31,with_mb=True,with_tn=True,learning_rate=lr)
         Plot.add_curve(learning_curve,label=r'Learning rate = {}'.format(lr))
     Plot.save("learning_rates.png")
+    
 def experiment_eb():
+    repitition = 10000
     n_episodes = 150
     smoothing_window = 31
     Plot = LearningCurvePlot()
     now = time.time()
-    without = average_over_repetitions(1,n_episodes,smoothing_window,with_mb=False,with_tn=False)
+    without = average_over_repetitions(repitition,n_episodes,smoothing_window,with_mb=False,with_tn=False)
     print('Without Experience Buffer and Target Network: {} minutes'.format((time.time() - now) / 60))
     now = time.time()
-    with_eb_learning_curve = average_over_repetitions(1,n_episodes,smoothing_window,with_mb=True,with_tn=False)
+    with_eb_learning_curve = average_over_repetitions(repitition,n_episodes,smoothing_window,with_mb=True,with_tn=False)
     print('With Experience Buffer: {} minutes'.format((time.time() - now) / 60))
     now = time.time()
-    with_tn_learning_curve = average_over_repetitions(1,n_episodes,smoothing_window,with_mb=False,with_tn=True)
+    with_tn_learning_curve = average_over_repetitions(repitition,n_episodes,smoothing_window,with_mb=False,with_tn=True)
     print('With Target Network: {} minutes'.format((time.time() - now) / 60))
     now = time.time()
-    with_tn__eb_learning_curve = average_over_repetitions(1,n_episodes,smoothing_window, with_mb=True, with_tn=True)
+    with_tn__eb_learning_curve = average_over_repetitions(repitition,n_episodes,smoothing_window, with_mb=True, with_tn=True)
     print('With Target Network and Experience Buffer: {} minutes'.format((time.time() - now) / 60))
 
     Plot.add_curve(without,label=r'Deep Q learning without Replay Buffer and Target Network')
@@ -84,23 +88,25 @@ def experiment_eb():
     Plot.save("different_elements.png")
 
 def experiment_archtecture():
+    repitition = 10000
     n_episodes = 200
     smoothing_window = 31
     Plot = LearningCurvePlot()
     number_of_nodes = [[24,16],[8,6],[256,64]]
     for non in number_of_nodes:
         print(non)
-        learning_curve = average_over_repetitions(1, n_episodes,smoothing_widnow=smoothing_window,with_mb=True,with_tn=True,number_of_nodes = non)
+        learning_curve = average_over_repetitions(repitition, n_episodes,smoothing_widnow=smoothing_window,with_mb=True,with_tn=True,number_of_nodes = non)
         Plot.add_curve(learning_curve,label=r'Number of nodes = {}'.format(non))
     Plot.save("number_of_nodes.png")
 
 
 def experiment_expl():
+    repitition = 10000
     epsilons = [0.01, 0.2, 1]
     for eps in epsilons:
         n_episodes = 100
         Plot = LearningCurvePlot()
-        learning_curve = average_over_repetitions(1, n_episodes, 31, with_mb=True, with_tn=True, epsilon=eps)
+        learning_curve = average_over_repetitions(repitition, n_episodes, 31, with_mb=True, with_tn=True, epsilon=eps)
         Plot.add_curve(learning_curve,label=r'Epsilon = {}'.format(eps))
     Plot.save("exploration_rates.png")
 
