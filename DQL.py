@@ -100,7 +100,7 @@ class DQNAgent:
             else:
                 current_qs[0][action] = reward + self.gamma * (np.amax(future_qs))
 
-            self.model.fit((np.reshape(obses_tp1, [1, 4])), (np.reshape(current_qs, [1, 2])), batch_size=self.batch_size, verbose=0)
+            self.model.fit((np.reshape(obses_t, [1, 4])), (np.reshape(current_qs, [1, 2])), batch_size=self.batch_size, verbose=0)
 
         if not terminalstate:
             self.target_updates += 1
