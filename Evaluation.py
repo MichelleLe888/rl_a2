@@ -110,6 +110,16 @@ def experiment_expl():
         Plot.add_curve(learning_curve,label=r'Epsilon = {}'.format(eps))
     Plot.save("exploration_rates.png")
 
+def experiment_memoryb():
+    repitition = 10000
+    mb_sizes = [1, 100, 1000]
+    Plot = LearningCurvePlot()
+    for mbs in mb_sizes:
+        n_episodes = 200
+        learning_curve = average_over_repetitions(repitition, n_episodes, 31, with_mb=True, with_tn=True,mb_size=mbs )
+        Plot.add_curve(learning_curve,label=r'Memory buffer size = {}'.format(mbs))
+    Plot.save("mb_sizes.png")
+
 
 #experiment()
 #experiment_lr()
