@@ -34,11 +34,11 @@ def smooth(y, window, poly=1):
     return savgol_filter(y,window,poly)
 
 
-def average_over_repetitions(n_repetitions,n_episodes,smoothing_widnow,with_mb=True,with_tn=True,learning_rate=None,epsilon=None,number_of_nodes = [24,16],mb_size = 2000):
+def average_over_repetitions(n_repetitions,n_episodes,smoothing_widnow,with_mb=True,with_tn=True,learning_rate=0.1,epsilon=0.01,number_of_nodes = [24,16],mb_size = 2000):
     reward_results = np.empty([n_repetitions, n_episodes])  # Result array
     for rep in range(n_repetitions):
         #     rewards = deep_q_learning(n_episodes=n_episodes,max_episode_lenght=max_episode_lenght,memory_buffer_size=memory_buffer_size, learning_rate=learning_rate, gamma=gamma, epsilon=epsilon,batch_size=64, with_mb=True,with_tn=True )
-        rewards = deep_q_learning(n_episodes=n_episodes,max_episode_lenght=200,memory_buffer_size=2000,learning_rate=0.1,gamma=1.0,epsilon=0.01,batch_size=32,with_mb=with_mb,with_tn=with_tn,number_of_nodes = number_of_nodes)
+        rewards = deep_q_learning(n_episodes=n_episodes,max_episode_lenght=500,memory_buffer_size=mb_size,learning_rate=learning_rate,gamma=1.0,epsilon=epsilon,batch_size=32,with_mb=with_mb,with_tn=with_tn,number_of_nodes = number_of_nodes)
         reward_results[rep] = rewards
 
     learning_curve = np.mean(reward_results, axis=0)  # average over repetitions
@@ -47,7 +47,7 @@ def average_over_repetitions(n_repetitions,n_episodes,smoothing_widnow,with_mb=T
 
 def experiment():
     repitition = 10000
-    n_episodes = 200
+    n_episodes = 500
     Plot = LearningCurvePlot()
     learning_curve = average_over_repetitions(repitition, n_episodes,31,with_mb=True,with_tn=True,learning_rate=0.1)
     Plot.add_curve(learning_curve)
@@ -67,7 +67,7 @@ def experiment_lr():
 def experiment_eb():
     print("Component experiment")
     repitition = 10000
-    n_episodes = 150
+    n_episodes = 500
     smoothing_window = 31
     Plot = LearningCurvePlot()
     now = time.time()
@@ -93,7 +93,7 @@ def experiment_eb():
 def experiment_archtecture():
     print("Architecture experiment")
     repitition = 10000
-    n_episodes = 200
+    n_episodes = 500
     smoothing_window = 31
     Plot = LearningCurvePlot()
     number_of_nodes = [[8,6],[24,16],[256,64]]
@@ -107,10 +107,10 @@ def experiment_archtecture():
 def experiment_expl():
     print("Exploration rate experiment")
     repitition = 10000
-    epsilons = [0.01, 0.2, 1]
+    epsilons = [ 0.2,0.01, 1]
+    Plot = LearningCurvePlot()
     for eps in epsilons:
-        n_episodes = 100
-        Plot = LearningCurvePlot()
+        n_episodes = 500
         learning_curve = average_over_repetitions(repitition, n_episodes, 31, with_mb=True, with_tn=True, epsilon=eps)
         Plot.add_curve(learning_curve,label=r'Epsilon = {}'.format(eps))
     Plot.save("exploration_rates.png")
@@ -121,7 +121,7 @@ def experiment_memoryb():
     mb_sizes = [1, 100, 1000]
     Plot = LearningCurvePlot()
     for mbs in mb_sizes:
-        n_episodes = 200
+        n_episodes = 500
         learning_curve = average_over_repetitions(repitition, n_episodes, 31, with_mb=True, with_tn=True,mb_size=mbs )
         Plot.add_curve(learning_curve,label=r'Memory buffer size = {}'.format(mbs))
     Plot.save("mb_sizes.png")
@@ -131,8 +131,8 @@ def experiment_memoryb():
 #experiment_lr()
 #experiment_eb()
 #experiment_expl()
-#experiment_archtecture()
-#experiment_memoryb
+experiment_archtecture()
+#experiment_memoryb()
 
 def main(args):
     args = args['experiment_name']
