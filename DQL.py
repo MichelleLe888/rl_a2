@@ -27,7 +27,7 @@ def DqnModel(input_shape, action_space,learning_rate,number_of_nodes = [24,16]):
 
 
 class DQNAgent:
-    def __init__(self,n_states, n_actions, memory_buffer_size,learning_rate,epsilon,gamma,batch_size, with_memory = True, with_tn = True, number_of_nodes = [24,16]):
+    def __init__(self,n_states, n_actions, memory_buffer_size,learning_rate,epsilon,gamma,batch_size, policy = 'ep-greedy', with_memory = True, with_tn = True, number_of_nodes = [24,16]):
         self.state_size = n_states
         self.action_size = n_actions
 
@@ -37,6 +37,16 @@ class DQNAgent:
         self.learning_rate = learning_rate
         self.batch_size = batch_size
         self.target_updates_treshold = 10
+        self.policy = policy
+
+        if self.policy == 'ep-anneal':
+            self.min_e = 0.1
+            self.epsilon = 1.0
+            self.e_decay = 0.98
+
+        if self.policy == 'bolztmann':
+            self.temp = 0.8
+
 
         self.model = DqnModel(input_shape=(self.state_size,), action_space=self.action_size,learning_rate=self.learning_rate,number_of_nodes=number_of_nodes)
 
@@ -50,12 +60,39 @@ class DQNAgent:
 
     def update_buffer(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
+        
+    '''Obtained from Leiden Reinforcement Learning 2022 Assignment 1 example'''
+    def softmax(self,x,temp):
+        
+        ''' Computes the softmax of vector x with temperature parameter 'temp' '''
+        x = x / temp # scale by temperature
+        z = x - max(x) # substract max to prevent overflow of softmax 
+        
+        return np.exp(z)/np.sum(np.exp(z),axis=0) # compute softmax
+    
+    def anneal_epsilon(self): 
+        self.epsilon *= self.e_decay
+        self.epsilon = max(self.min_e, self.epsilon)
+        return self.epsilon
 
     def select_action(self, state):
-        if np.random.random() <= self.epsilon:
-            return random.randrange(self.action_size)
+        if self.policy == 'ep-greedy':
+            if np.random.random() <= self.epsilon:
+                return random.randrange(self.action_size)
+            else:
+                return np.argmax(self.model.predict((np.reshape(state, [1,4]))))
+        elif self.policy == 'ep-anneal':
+            if np.random.random() <= self.anneal_epsilon():
+                return random.randrange(self.action_size)
+            else:
+                return np.argmax(self.model.predict((np.reshape(state, [1,4]))))
+        elif self.policy == 'bolztmann':
+          
+            prob = self.softmax(self.model.predict((np.reshape(state, [1,4])))[0], self.temp)
+            return np.random.choice(np.arange(len(prob)), p=prob)
+            
         else:
-            return np.argmax(self.model.predict((np.reshape(state, [1,4]))))
+          print("Error. Policy set as:", self.policy)
 
 
     def train(self,terminalstate,transition, with_tn, with_mb):
@@ -170,6 +207,10 @@ def main(argv):
     max_episode_lenght = 200
     epsilon = 0.2
     batch_size = 32
+    
+    #set the policy, default is epsilon greedy
+    #policy = 'ep-anneal' 
+    #policy = 'bolztmann' 
 
     rewards = deep_q_learning(n_episodes=n_episodes,max_episode_lenght=max_episode_lenght,memory_buffer_size=memory_buffer_size,
                               learning_rate=learning_rate, gamma=gamma, epsilon=epsilon,batch_size=batch_size, with_mb=with_mb,with_tn=with_tn )
