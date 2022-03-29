@@ -7,11 +7,10 @@ from tensorflow.keras.optimizers import Adam
 from matplotlib import pyplot as plt
 from collections import deque
 import sys
-import tensorflow as tf
-import keras
+
 #run on GPU
-# from tensorflow.keras import backend as K
-# K.tensorflow_backend._get_available_gpus()
+from tensorflow.keras import backend as K
+K.tensorflow_backend._get_available_gpus()
 
 
 def DqnModel(input_shape, action_space,learning_rate,number_of_nodes = [24,16]):
