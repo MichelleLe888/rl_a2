@@ -3,7 +3,8 @@ import time
 from DQL import deep_q_learning
 from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
-
+import sys
+import argparse
 
 class LearningCurvePlot:
 
@@ -33,7 +34,7 @@ def smooth(y, window, poly=1):
     return savgol_filter(y,window,poly)
 
 
-def average_over_repetitions(n_repetitions,n_episodes,smoothing_widnow,with_mb=True,with_tn=True,learning_rate=None,epsilon=None,number_of_nodes = [24,16]):
+def average_over_repetitions(n_repetitions,n_episodes,smoothing_widnow,with_mb=True,with_tn=True,learning_rate=None,epsilon=None,number_of_nodes = [24,16],mb_size = 2000):
     reward_results = np.empty([n_repetitions, n_episodes])  # Result array
     for rep in range(n_repetitions):
         #     rewards = deep_q_learning(n_episodes=n_episodes,max_episode_lenght=max_episode_lenght,memory_buffer_size=memory_buffer_size, learning_rate=learning_rate, gamma=gamma, epsilon=epsilon,batch_size=64, with_mb=True,with_tn=True )
@@ -53,8 +54,9 @@ def experiment():
     Plot.save("network_learning.png")
 
 def experiment_lr():
-    repitition = 10000
-    n_episodes = 200
+    print("Learning rate experiment")
+    repitition = 30
+    n_episodes = 500
     learning_rates = [0.01, 0.2, 0.5]
     Plot = LearningCurvePlot()
     for lr in learning_rates:
@@ -63,6 +65,7 @@ def experiment_lr():
     Plot.save("learning_rates.png")
     
 def experiment_eb():
+    print("Component experiment")
     repitition = 10000
     n_episodes = 150
     smoothing_window = 31
@@ -88,11 +91,12 @@ def experiment_eb():
     Plot.save("different_elements.png")
 
 def experiment_archtecture():
+    print("Architecture experiment")
     repitition = 10000
     n_episodes = 200
     smoothing_window = 31
     Plot = LearningCurvePlot()
-    number_of_nodes = [[24,16],[8,6],[256,64]]
+    number_of_nodes = [[8,6],[24,16],[256,64]]
     for non in number_of_nodes:
         print(non)
         learning_curve = average_over_repetitions(repitition, n_episodes,smoothing_widnow=smoothing_window,with_mb=True,with_tn=True,number_of_nodes = non)
@@ -101,6 +105,7 @@ def experiment_archtecture():
 
 
 def experiment_expl():
+    print("Exploration rate experiment")
     repitition = 10000
     epsilons = [0.01, 0.2, 1]
     for eps in epsilons:
@@ -111,6 +116,7 @@ def experiment_expl():
     Plot.save("exploration_rates.png")
 
 def experiment_memoryb():
+    print("Memory buffer experiment")
     repitition = 10000
     mb_sizes = [1, 100, 1000]
     Plot = LearningCurvePlot()
@@ -123,6 +129,26 @@ def experiment_memoryb():
 
 #experiment()
 #experiment_lr()
-experiment_eb()
+#experiment_eb()
 #experiment_expl()
 #experiment_archtecture()
+#experiment_memoryb
+
+def main(args):
+    args = args['experiment_name']
+    if args == 'learning_rate':
+        experiment_lr()
+    elif args == 'elements':
+        experiment_eb()
+    elif args == 'exploration':
+        experiment_expl()
+    elif args == 'architecture':
+        experiment_archtecture()
+    elif args == 'memory_buffer':
+        experiment_memoryb()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser("experiment")
+    parser.add_argument("--experiment_name", help="Specified experiment will be performed.", type=str)
+    args = vars(parser.parse_args())
+    main(args)
