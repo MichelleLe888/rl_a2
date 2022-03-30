@@ -42,10 +42,10 @@ class DQNAgent:
         if self.policy == 'ep-anneal':
             self.min_e = 0.1
             self.epsilon = 1.0
-            self.e_decay = 0.98
+            self.e_decay = 0.95
 
         if self.policy == 'bolztmann':
-            self.temp = 0.8
+            self.temp = epsilon
 
 
         self.model = DqnModel(input_shape=(self.state_size,), action_space=self.action_size,learning_rate=self.learning_rate,number_of_nodes=number_of_nodes)
