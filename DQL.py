@@ -9,8 +9,8 @@ from collections import deque
 import sys
 
 #run on GPU
-from tensorflow.keras import backend as K
-K.tensorflow_backend._get_available_gpus()
+# from tensorflow.keras import backend as K
+# K.tensorflow_backend._get_available_gpus()
 
 
 def DqnModel(input_shape, action_space,learning_rate,number_of_nodes = [24,16]):
