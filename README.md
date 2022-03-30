@@ -3,7 +3,8 @@ This project contains the implementation of Deep Q learning
 algorithm applied to the openAI CartPole-v1 Gym environment. Project explored the significance of the core elements of
 the algorithm: Experience Buffer and Target Network.
 Versions of the packages used:
-
+tensorflow 2.4.1
+gym 0.21.0
 There are 2 parts of the project:
 1. you can run one iteration of the Deep Q-learning and specify the component to use with the default
 hyper-parameters values:
