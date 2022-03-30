@@ -125,6 +125,37 @@ def experiment_memoryb():
         learning_curve = average_over_repetitions(repitition, n_episodes, 31, with_mb=True, with_tn=True,mb_size=mbs )
         Plot.add_curve(learning_curve,label=r'Memory buffer size = {}'.format(mbs))
     Plot.save("mb_sizes.png")
+    
+def experiment_boltz():
+
+    print("Boltzmann policy experiment")
+    repitition = 10000
+    n_episodes = 500
+    policy = ['bolztmann']
+    epsilon = [0.05,0.1,0.4,0.8,1.0]
+
+
+    Plot = LearningCurvePlot(title="Policies Comparison")
+    for p in policy:
+        for e in epsilon:
+            learning_curve = average_over_repetitions(repitition, n_episodes, 31,epsilon=epsilon,policy=p,
+                                                      with_mb=False, with_tn=True)
+            Plot.add_curve(learning_curve,label=r'Policy = {}'.format(p))
+    Plot.save("BPolicies.png")
+    
+def experiment_policy():
+
+    print("Action policy experiment")
+    repitition = 10000
+    n_episodes = 500
+    policy = ['ep-anneal','bolztmann','ep-greedy',]
+
+    Plot = LearningCurvePlot(title="Policies Comparison")
+    for p in policy:
+        learning_curve = average_over_repetitions(repitition, n_episodes, 31,epsilon=0.8,policy=p,
+                                                  with_mb=False, with_tn=True)
+        Plot.add_curve(learning_curve,label=r'Policy = {}'.format(p))
+    Plot.save("AllPolicies.png")
 
 
 #experiment()
@@ -142,6 +173,10 @@ def main(args):
         experiment_eb()
     elif args == 'exploration':
         experiment_expl()
+    elif args == 'Boltz':
+        experiment_boltz()
+    elif args == 'policy':
+        experiment_policy()
     elif args == 'architecture':
         experiment_archtecture()
     elif args == 'memory_buffer':
